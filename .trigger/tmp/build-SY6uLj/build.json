@@ -1,0 +1,108 @@
+{
+  "build": {
+  },
+  "cliPackageVersion": "4.4.1",
+  "config": {
+    "dirs": [
+      "./src/trigger"
+    ],
+    "project": "proj_qhquooryqqxtiyvnlvyy"
+  },
+  "configPath": "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/commence-worker/trigger.config.mjs",
+  "contentHash": "28402bcbe32b93bf98096d188a43f220",
+  "customConditions": [
+  ],
+  "deploy": {
+    "env": {
+    }
+  },
+  "environment": "dev",
+  "externals": [
+    {
+      "name": "playwright",
+      "version": "1.58.2"
+    },
+    {
+      "name": "import-in-the-middle",
+      "version": "1.11.0"
+    }
+  ],
+  "files": [
+    {
+      "entry": "src/trigger/discovery.ts",
+      "out": "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/commence-worker/src/trigger/discovery.mjs"
+    }
+  ],
+  "indexWorkerEntryPoint": "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/.npm/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/dev-index-worker.mjs",
+  "otelImportHook": {
+    "include": [
+    ]
+  },
+  "outputHashes": {
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/.npm/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/dev-index-worker.mjs": "lwJEJWuP+W8",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/.npm/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/dev-index-worker.mjs.map": "3WhHjoputVg",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/.npm/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/dev-run-worker.mjs": "mx88GtEHxHo",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/.npm/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/dev-run-worker.mjs.map": "MKKLJExHDVE",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-A6VEC5XB.mjs": "efg0wMu+jCY",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-A6VEC5XB.mjs.map": "pYTR3ifmZyE",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-CC55GA3Y.mjs": "qWbvZ9/WNFM",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-CC55GA3Y.mjs.map": "fkYbh24eCzM",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-JP2KUJVV.mjs": "IBcrziLtn4E",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-JP2KUJVV.mjs.map": "g65c5M1GDeo",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-KAIU2PGD.mjs": "w8v2JT3RzPU",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-KAIU2PGD.mjs.map": "31DHWtCXI+0",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-NKKWNCEX.mjs": "f5s+wYX0fQY",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-NKKWNCEX.mjs.map": "PyRVbKGmlmg",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-RA6RHLTU.mjs": "1ogsJLyZDWQ",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-RA6RHLTU.mjs.map": "LMPzUuAiOIM",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-STGYRQ63.mjs": "vwPrnpcn470",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/chunk-STGYRQ63.mjs.map": "fioxIOgWses",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/commence-worker/src/trigger/discovery.mjs": "yKQXC4BCaMk",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/commence-worker/src/trigger/discovery.mjs.map": "IarVrK577JM",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/commence-worker/trigger.config.mjs": "WK6M/xrHFmc",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/commence-worker/trigger.config.mjs.map": "EKMVIaT+sxk",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/crypto.node-2TACPXAB.mjs": "Iz57Hw3LcNI",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/crypto.node-2TACPXAB.mjs.map": "0b4tlwmkM3g",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/crypto.node-CGQEOW4K.mjs": "tcWaMiMdCNc",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/crypto.node-CGQEOW4K.mjs.map": "ZWpzjuwC5Ag",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/esm-3O5RKS75.mjs": "TnmYf8PN2Jw",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/esm-3O5RKS75.mjs.map": "VON93E1In1A",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/esm-N6JFYAU3.mjs": "J9Aww9wL0xw",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/esm-N6JFYAU3.mjs.map": "ZdZPPnJqj8Y",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-bsd-4R3DSYUP.mjs": "X/cGyDHITQ0",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-bsd-4R3DSYUP.mjs.map": "SoEWjre6ca8",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-darwin-E5WJRIRN.mjs": "s7dkmZ7o6L0",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-darwin-E5WJRIRN.mjs.map": "/OzKiDQPYkc",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-linux-JR2RJCQR.mjs": "B6Ybn9rjzEE",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-linux-JR2RJCQR.mjs.map": "3DPYgGTQhL8",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-unsupported-NM2LIOCX.mjs": "l6vvm0JZXYo",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-unsupported-NM2LIOCX.mjs.map": "cPRbdt/PFwo",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-win-ZC7B7J2J.mjs": "O6VFuxp/35U",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/getMachineId-win-ZC7B7J2J.mjs.map": "ZYN6LrfFJ3A",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/s2s-KIIOJDBO.mjs": "6D1fgDhLWVI",
+    "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/s2s-KIIOJDBO.mjs.map": "77EidjsylTU"
+  },
+  "outputPath": "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj",
+  "packageVersion": "4.4.1",
+  "runWorkerEntryPoint": "/Users/kdenaeem/commence-worker/.trigger/tmp/build-SY6uLj/.npm/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/dev-run-worker.mjs",
+  "runtime": "node",
+  "sources": {
+    "package.json": {
+      "contentHash": "cd98fc46a9ae4028cd4a3867578a2ab8",
+      "contents": "eJx9kjFvwjAUhPf8iicPTGBIAEGZkNoOnTuWIqX2K3klsS3bhESI/17ZCYSh6pi77+R3p1wSAKbyCtkGmNBVhUrg5KztES0bB7NG60ir4Kd8xmedKtEJS8b3TidWOcUvUhIb/uM6tQMd28AlAYjZOlDKNOAtHQ5oucR6W+YenYfgjm+gKXX7LxuBHv86USkD7Z24aQELEopCw469WqvtBpSGmHcGBX0Tyh2D0QiwIQ8pSwCu8fIjtmdtZTj94zMq+ckX2g6NSxKoXBzv7f2503xr7mtqdVtBokElUQnChym2ufKF1YbEJKepk8cQ3M/4at0PHZiH4ndkwRc8vRGiQLSko5HybIhK7VHVnb7i8yFhyrw9WzoUvg8t1zwbikusX/6+N5RzU6VlrLjPlnw+POdd0x+XpQ9qiMR/IJpL/sTn8ank+gudy6/v"
+    },
+    "src/trigger/discovery.ts": {
+      "contentHash": "6ab076cfe469141c61a2d698f9d39cfe",
+      "contents": "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"
+    },
+    "trigger.config.ts": {
+      "contentHash": "5b2c28304b47ac3e70dc856220cbe792",
+      "contents": "eJx1kE1PwzAMhu/9FVZOIJV1MIlDdhlil0lw4zZNKGvcztAkm+uWlmn/He2TtQhfYvl5X9sxuXVggS1YzMjjc/AZ5bCDjIMDNRGmPEceWKyT0n4m9UiNowibg8liZqpCOtabbQQAsObwgaloUPvsfbPaVCFwu9k0Qm3ti7ptVXxQcuWFHGpQPlg8FYuQv2CNhQZFPgtnKQoTlhqOM/aB3iwLtDM/xVqDcIXxhZ3Wu5bvw5nmSQTdWkoNo7jLyL+Rw1DJzL+WGu6Hw2Hcd/9R9CSZSSWwhodumY23wdE39vfcHdPTY4lLDXM1SEpOk9P91eIInWmmFRuh4DU8ngcvKyps5yqNIHtTaJh3VlDrwrRfTPlKVPwfuUsDYx+nKw6OKne3JEt9OPk1J4Llde/F5W/R7nYc/QBn5qoo"
+    },
+    "tsconfig.json": {
+      "contentHash": "9bebf436139325ad96b9519fcb6a5bca",
+      "contents": "eJxtkUFPwzAMhe/7FVGOFaKox14LSEMMJDgihLrUDLM0ruwEIU377yjJ2DLK9X3PL/bLbqGUUtrQOKEFfpw8khPdql0CCfqeN+B1q/TNc3PVNPrixEYagoXIDI0juU8pqcW1btXLUUjiIeQovhYDFPw1coy7rAcUX4Yx0QkKm5KJZzRxRc8BCh1klRZcOg9M09wgW5zucd19gNnO6TuxgY6coHhwvusF3WbpbtHCQz+CzCcYhOwX3Am51W81fyy5sqdoDLHteJCjAXIj++zU6IwNA5zVp4VNXVV1la2H4jR8/2ONiW/5qbMvSa3m8cX+BzQygmE="
+    }
+  },
+  "target": "dev"
+}

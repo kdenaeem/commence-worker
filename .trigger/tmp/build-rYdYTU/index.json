@@ -1,0 +1,36 @@
+{
+  "configPath": "/Users/kdenaeem/commence-worker/.trigger/tmp/build-rYdYTU/commence-worker/trigger.config.mjs",
+  "customConditions": [
+  ],
+  "queues": [
+    {
+      "concurrencyLimit": 1,
+      "name": "scraping-queue"
+    }
+  ],
+  "runtime": "node",
+  "runtimeVersion": "24.13.0",
+  "tasks": [
+    {
+      "entryPoint": "/Users/kdenaeem/commence-worker/.trigger/tmp/build-rYdYTU/commence-worker/src/trigger/discovery.mjs",
+      "filePath": "src/trigger/discovery.ts",
+      "id": "discovery-flow",
+      "maxDuration": 300,
+      "queue": {
+        "concurrencyLimit": 1,
+        "name": "scraping-queue"
+      },
+      "retry": {
+        "factor": 2,
+        "maxAttempts": 3,
+        "maxTimeoutInMs": 10000,
+        "minTimeoutInMs": 1000,
+        "randomize": true
+      }
+    }
+  ],
+  "timings": {
+    "src/trigger/discovery.ts": 176.42087500000002
+  },
+  "workerEntryPoint": "/Users/kdenaeem/commence-worker/.trigger/tmp/build-rYdYTU/.npm/_npx/f51a09bd0abf5f10/node_modules/trigger.dev/dist/esm/entryPoints/dev-run-worker.mjs"
+}
