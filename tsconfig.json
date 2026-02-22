@@ -6,7 +6,11 @@
             "ES2022"
         ],
         "outDir": "./dist",
-        "rootDir": "./src",
+        "rootDir": ".",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./*"]
+        },
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
@@ -15,7 +19,9 @@
         "moduleResolution": "node"
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "utils/**/*",
+        "packages/**/*"
     ],
     "exclude": [
         "node_modules",

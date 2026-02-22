@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { discoveryFlow } from "./trigger/discovery";
+import { discoveryFlowTask } from "./trigger/discovery-flow";
 
 // Entry point - registers tasks with Trigger.dev
 console.log("Worker initialized with tasks:", {
-    discoveryFlow: discoveryFlow.id,
+    discoveryFlow: discoveryFlowTask.id,
 });

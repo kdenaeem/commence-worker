@@ -1,4 +1,6 @@
 import { defineConfig } from "@trigger.dev/sdk/v3";
+import { esbuildPlugin } from "@trigger.dev/build/extensions";
+import path from "path";
 
 export default defineConfig({
     project: "proj_qhquooryqqxtiyvnlvyy",
@@ -23,6 +25,15 @@ export default defineConfig({
             "chromium-bidi",
             "@playwright/test",
         ],
+        extensions: [
+            esbuildPlugin({
+                name: "path-alias",
+                setup(build: any) {
+                    build.onResolve({ filter: /^@\// }, (args: any) => ({
+                        path: path.resolve(__dirname, args.path.replace(/^@\//, "")),
+                    }));
+                },
+            }),
+        ],
     },
-
 });
