@@ -33,7 +33,7 @@ export interface CostBreakdown {
     completionTokens: number;
 }
 
-export type ExtractionModel = 'gpt-4o' | 'gpt-5-mini';
+export type ExtractionModel = 'gpt-4o-mini' | 'gpt-5-mini';
 export type ClassificationModel = 'gpt-4o-mini';
 export type LLMModel = ExtractionModel | ClassificationModel;
 
@@ -45,7 +45,7 @@ export type LLMModel = ExtractionModel | ClassificationModel;
  */
 export function calculateCost(
     usage: TokenUsage,
-    model: LLMModel = 'gpt-5-mini'
+    model: LLMModel = 'gpt-4o-mini'
 ): CostBreakdown {
     let inputCostPerMillion: number;
     let outputCostPerMillion: number;
@@ -59,7 +59,7 @@ export function calculateCost(
             inputCostPerMillion = GPT4O_MINI_INPUT_COST_PER_MILLION;
             outputCostPerMillion = GPT4O_MINI_OUTPUT_COST_PER_MILLION;
             break;
-        case 'gpt-5-mini':
+        case 'gpt-4o-mini':
             inputCostPerMillion = GPT5_MINI_INPUT_COST_PER_MILLION;
             outputCostPerMillion = GPT5_MINI_OUTPUT_COST_PER_MILLION;
             break;
@@ -104,7 +104,7 @@ export class UsageTracker {
         };
     }
 
-    getCost(model: LLMModel = 'gpt-5-mini'): CostBreakdown {
+    getCost(model: LLMModel = 'gpt-4o-mini'): CostBreakdown {
         return calculateCost(this.getUsage(), model);
     }
 

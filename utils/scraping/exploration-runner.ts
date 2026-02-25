@@ -255,7 +255,7 @@ export async function runExplorationJob(input: ExplorationJobInput): Promise<Exp
     const maxPages = scraperConfig.maxPages ?? 10;
     const maxRoles = scraperConfig.maxRoles ?? null; // null means unlimited
     const maxScrolls = scraperConfig.maxScrolls ?? 5;
-    const extractionModel = scraperConfig.extractionModel ?? 'gpt-5-mini';
+    const extractionModel = scraperConfig.extractionModel ?? 'gpt-4o-mini';
 
     try {
         logMessage(`Starting exploration for: ${input.url}`);
@@ -557,7 +557,7 @@ export async function runExplorationJob(input: ExplorationJobInput): Promise<Exp
                             logMessage(`[DETAIL] Current suggestion normalized: "${normalizedSuggestion}"`);
 
                             // Check for match
-                            const match = existingDrafts.find((draft) => {
+                            const match = existingDrafts.find((draft: any) => {
                                 const normalizedDraft = normalizeProgrammeName(draft.suggested_name);
                                 return normalizedDraft === normalizedSuggestion && draft.program_type === suggestion.program_type;
                             });
@@ -709,11 +709,13 @@ export async function runExplorationJob(input: ExplorationJobInput): Promise<Exp
         logMessage('PHASE 1: Scanning all listing pages...');
         logMessage('='.repeat(50));
         await crawler.run([{ url: input.url, label: 'LIST' }]);
+        logMessage(`Crawler run() returned - checking if DETAIL requests were processed...`);
+        logMessage(`Total collected links: ${collectedLinks.length}`);
 
         // Calculate total cost
-        const extractionCost = extractionTracker.getCost('gpt-5-mini');
+        const extractionCost = extractionTracker.getCost('gpt-4o-mini');
         const classificationCost = classificationTracker.getCost('gpt-4o-mini');
-        const suggestionCost = suggestionTracker.getCost('gpt-5-mini');
+        const suggestionCost = suggestionTracker.getCost('gpt-4o-mini');
         const totalCost = extractionCost.totalCost + classificationCost.totalCost + suggestionCost.totalCost;
         const totalTokens = extractionCost.totalTokens + classificationCost.totalTokens + suggestionCost.totalTokens;
 

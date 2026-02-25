@@ -1,7 +1,7 @@
 import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
 import { ScrapedRoleSchema, ScrapedRole, LinkClassificationSchema, LinkWithContext } from '@/packages/schemas/careers-scraping';
 import * as cheerio from 'cheerio';
+import { createOpenAI } from '@ai-sdk/openai';
 import TurndownService from 'turndown';
 import { TokenUsage, ExtractionModel } from './cost-calculator';
 
@@ -111,7 +111,7 @@ export function cleanHtmlToMarkdown(html: string): string {
 export async function extractRoleFromHtml(
     html: string,
     url: string,
-    model: ExtractionModel = 'gpt-5-mini'
+    model: ExtractionModel = 'gpt-4o-mini'
 ): Promise<{
     role: ScrapedRole;
     usage: TokenUsage;
@@ -148,14 +148,18 @@ Determine if this is:
 - summer_internship: Summer internship/analyst program (typically 8-12 weeks in summer)
 - spring_week: Spring week / insight program (typically 1 week)
 - graduate: Graduate program / full-time new grad role / rotational program
-- off_cycle: Off-cycle internship (internships outside summer, e.g., winter, fall)
+- off_cycle_internship: Off-cycle internship (internships outside summer, e.g., winter, fall, spring)
+- apprenticeship: Multi-year work+study programmes with formal qualifications
 
 DESCRIPTION:
-Give detialed summar of the job description text. Include responsibilities, what the role entails, team info, etc.`;
+Give detailed summary of the job description text. Include responsibilities, what the role entails, team info, etc.`;
+    const openaiProvider = process.env.OPENAI_API_KEY
+        ? createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
+        : createOpenAI();
 
     try {
         const { object, usage } = await generateObject({
-            model: openai(model),
+            model: openaiProvider(model),
             schema: ScrapedRoleSchema,
             system: systemPrompt,
             prompt: `Extract job role details from the following job posting page.
@@ -197,7 +201,7 @@ ${markdown}`,
         try {
             console.log('Retrying extraction...');
             const { object, usage } = await generateObject({
-                model: openai(model),
+                model: openaiProvider('gpt-4o-mini'),
                 schema: ScrapedRoleSchema,
                 system: systemPrompt,
                 prompt: `Extract job role details from the following job posting page.
@@ -260,6 +264,9 @@ export async function classifyJobLinks(links: LinkWithContext[]): Promise<{
             usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
         };
     }
+    const openaiProvider = process.env.OPENAI_API_KEY
+        ? createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
+        : createOpenAI();
 
     // Prepare links for classification (include all context)
     const linksForLLM = links.map((link, index) => ({
@@ -272,10 +279,12 @@ export async function classifyJobLinks(links: LinkWithContext[]): Promise<{
     }));
 
     try {
-        const { object, usage } = await generateObject({
-            model: openai('gpt-4o-mini'), // Use mini for speed/cost on classification
-            schema: LinkClassificationSchema,
-            system: `You are an expert at identifying job posting links and extracting specific role titles from career pages.
+        const { object, usage } = await /* The above code is a comment block in TypeScript. It appears
+        to be documenting a function called `generateObject`. */
+            generateObject({
+                model: openaiProvider('gpt-4o-mini'), // Use mini for speed/cost on classification
+                schema: LinkClassificationSchema,
+                system: `You are an expert at identifying job posting links and extracting specific role titles from career pages.
 
 Your task:
 1. Identify which links lead to INDIVIDUAL JOB ROLE DETAIL PAGES
@@ -304,13 +313,13 @@ Confidence levels:
 - high: Clear job posting with obvious role title in headings
 - medium: Likely job posting, title extracted from card text
 - low: Uncertain if it's a job posting`,
-            prompt: `Analyze these links from a careers page. For each job posting, extract the actual role title.
+                prompt: `Analyze these links from a careers page. For each job posting, extract the actual role title.
 
 LINKS TO ANALYZE:
 ${JSON.stringify(linksForLLM, null, 2)}
 
 Return only the links that are individual job postings, with their extracted role titles.`,
-        });
+            });
 
         // Log the raw usage object to debug
         console.log('Classification raw usage:', JSON.stringify(usage, null, 2));
@@ -353,7 +362,7 @@ Return only the links that are individual job postings, with their extracted rol
  * 2. Find nearest parent containing a heading (structural heuristic)
  * 3. Fallback: go up 3 levels
  */
-function findJobCardContainer($link: cheerio.Cheerio): cheerio.Cheerio {
+function findJobCardContainer($link: cheerio.Cheerio<any>): cheerio.Cheerio<any> {
     // Strategy 1: Semantic HTML (fast path if present)
     const $semantic = $link.closest('article, li');
     if ($semantic.length > 0) {
@@ -444,9 +453,9 @@ export function extractLinksWithContext(html: string, baseUrl: string): LinkWith
         // Extract all headings from the container
         const headings = $container
             .find('h1, h2, h3, h4, h5, h6')
-            .map((_, el) => $(el).text().trim())
+            .map((_: any, el: any) => $(el).text().trim())
             .get()
-            .filter((heading) => heading.length > 0);
+            .filter((heading: any) => heading.length > 0);
 
         // Extract full card text (truncated to avoid overwhelming LLM)
         let cardText = $container
