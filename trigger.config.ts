@@ -1,5 +1,6 @@
 import { defineConfig } from "@trigger.dev/sdk/v3";
 import { esbuildPlugin } from "@trigger.dev/build/extensions";
+import { tsConfigPaths } from "@trigger.dev/build/extensions";
 import path from "path";
 
 export default defineConfig({
@@ -26,14 +27,7 @@ export default defineConfig({
             "@playwright/test",
         ],
         extensions: [
-            esbuildPlugin({
-                name: "path-alias",
-                setup(build: any) {
-                    build.onResolve({ filter: /^@\// }, (args: any) => ({
-                        path: path.resolve(__dirname, args.path.replace(/^@\//, "")),
-                    }));
-                },
-            }),
+            tsConfigPaths(),
         ],
     },
 });
