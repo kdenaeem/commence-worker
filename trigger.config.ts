@@ -24,6 +24,9 @@ export default defineConfig({
             "playwright-core",
             "chromium-bidi",
             "@playwright/test",
+            "jsdom",
+            "crawlee",
+            "cheerio",
         ],
         extensions: [
             esbuildPlugin({
