@@ -59,10 +59,6 @@ export function calculateCost(
             inputCostPerMillion = GPT4O_MINI_INPUT_COST_PER_MILLION;
             outputCostPerMillion = GPT4O_MINI_OUTPUT_COST_PER_MILLION;
             break;
-        case 'gpt-4o-mini':
-            inputCostPerMillion = GPT5_MINI_INPUT_COST_PER_MILLION;
-            outputCostPerMillion = GPT5_MINI_OUTPUT_COST_PER_MILLION;
-            break;
         default:
             inputCostPerMillion = GPT5_MINI_INPUT_COST_PER_MILLION;
             outputCostPerMillion = GPT5_MINI_OUTPUT_COST_PER_MILLION;
