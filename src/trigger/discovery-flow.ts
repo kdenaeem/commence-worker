@@ -26,9 +26,9 @@ export const discoveryFlowTask = task({
         const { data: scrapeUrl, error: scrapeUrlError } = await supabase
             .from("scrape_urls")
             .select(`
-                id, url, firm_id, expected_programmes, scraper_config,
-                firms!inner(id, name, slug)
-            `)
+        id, url, firm_id, expected_programmes, scraper_config,
+        firms!scrape_urls_firm_id_fkey(id, name, slug)
+    `)
             .eq("id", scrapeUrlId)
             .single();
 
