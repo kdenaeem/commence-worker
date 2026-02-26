@@ -1,8 +1,8 @@
 import { task, logger } from "@trigger.dev/sdk/v3";
 import { createClient } from "@supabase/supabase-js";
-import { runListPhase } from "@/utils/scraping/list-phase";
-import { runDetailPhase, DetailPhaseInput } from "@/utils/scraping/detail-phase";
-import { updateScrapeUrlMetrics } from "@/utils/scraping/save-discoveries";
+import { runListPhase } from "../../utils/scraping/list-phase";
+import { runDetailPhase, DetailPhaseInput } from "../../utils/scraping/detail-phase";
+import { updateScrapeUrlMetrics } from "../../utils/scraping/save-discoveries";
 
 // ============================================================
 // Task 1: Discovery Flow - scans listing pages, fans out to detail tasks

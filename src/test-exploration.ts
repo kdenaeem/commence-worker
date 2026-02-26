@@ -6,10 +6,10 @@ import { runDetailPhase } from "../utils/scraping/detail-phase";
 
 async function test() {
     const result = await runDetailPhase({
-        url: "https://hsbcearlycareers.groupgti.com/relationship-management---corporate-and-institutional-banking---graduate---uk-london/524/viewdetails",
+        url: "https://ekbq.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2/jobs?iis=Trackr&keyword=%22graduate+programme%22&mode=job-location&sType=Trackr",
         title: "Relationship Management",
         action: "NEW_ROLE",
-        firmId: "00000000-0000-0000-0000-000000000000",
+        firmId: "34b4417e-71f9-4b69-a056-e1db5115653a",
         firmName: "HSBC",
         firmSlug: "hsbc",
         scrapeUrlId: "manual-test",
