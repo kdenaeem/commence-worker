@@ -25,10 +25,7 @@ export const discoveryFlowTask = task({
         // Fetch scrape URL with firm info
         const { data: scrapeUrl, error: scrapeUrlError } = await supabase
             .from("scrape_urls")
-            .select(`
-        id, url, firm_id, expected_programmes, scraper_config,
-        firms!scrape_urls_firm_id_fkey(id, name, slug)
-    `)
+            .select("id, url, firm_id, expected_programmes, scraper_config")
             .eq("id", scrapeUrlId)
             .single();
 
@@ -36,17 +33,25 @@ export const discoveryFlowTask = task({
             throw new Error(`Failed to fetch scrape URL ${scrapeUrlId}: ${scrapeUrlError?.message}`);
         }
 
-        const firm = scrapeUrl.firms as any;
+        const { data: firm, error: firmError } = await supabase
+            .from("firms")
+            .select("id, name, slug")
+            .eq("id", scrapeUrl.firm_id)
+            .single();
 
-        // Fetch existing programmes for the firm
+        if (firmError || !firm) {
+            throw new Error(`Failed to fetch firm: ${firmError?.message}`);
+        }
+
         const { data: existingProgrammes } = await supabase
             .from("programs")
             .select("id, name, normalized_name, program_type")
             .eq("firm_id", scrapeUrl.firm_id);
 
-        logger.info(`Starting discovery for ${firm.name}`, { url: scrapeUrl.url });
 
         // Phase 1: Scan listing pages, collect role links
+        logger.info(`Starting discovery for ${firm.name}`, { url: scrapeUrl.url });
+
         const listResult = await runListPhase({
             scrapeUrlId: scrapeUrl.id,
             url: scrapeUrl.url,
@@ -59,32 +64,14 @@ export const discoveryFlowTask = task({
             throw new Error(`LIST phase failed: ${listResult.error}`);
         }
 
-        logger.info(`LIST phase complete`, {
-            rolesFound: listResult.collectedLinks.length,
-            pagesProcessed: listResult.metrics.pagesProcessed,
-        });
-
         if (listResult.collectedLinks.length === 0) {
-            logger.info("No new roles found, skipping detail extraction");
-            return {
-                firmName: firm.name,
-                url: scrapeUrl.url,
-                rolesFound: 0,
-                batchId: null,
-            };
+            logger.info("No new roles found");
+            return { firmName: firm.name, rolesFound: 0 };
         }
 
-        // Apply maxRoles limit
-        const maxRoles = scrapeUrl.scraper_config?.maxRoles ?? null;
-        const linksToExtract = maxRoles
-            ? listResult.collectedLinks.slice(0, maxRoles)
-            : listResult.collectedLinks;
-
-        logger.info(`Triggering ${linksToExtract.length} parallel detail extractions...`);
-
-        // Phase 2: Fan out detail extraction tasks in parallel
+        // Phase 2: Fan out detail tasks
         const batch = await roleExtractionTask.batchTrigger(
-            linksToExtract.map(link => ({
+            listResult.collectedLinks.map(link => ({
                 payload: {
                     url: link.url,
                     title: link.title,
@@ -98,18 +85,14 @@ export const discoveryFlowTask = task({
                     existingProgrammes: existingProgrammes || [],
                     allRolesInScan: listResult.allRolesInScan,
                     scraperConfig: scrapeUrl.scraper_config || {},
-                } satisfies DetailPhaseInput,
+                },
             }))
         );
 
-        logger.info(`Batch triggered`, { batchId: batch.batchId, count: linksToExtract.length });
-
         return {
             firmName: firm.name,
-            url: scrapeUrl.url,
-            rolesFound: linksToExtract.length,
+            rolesFound: listResult.collectedLinks.length,
             batchId: batch.batchId,
-            listMetrics: listResult.metrics,
         };
     },
 });

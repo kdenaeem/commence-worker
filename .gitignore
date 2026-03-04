@@ -6,3 +6,5 @@ dist/
 *.log
 .DS_Store
 EOF
+.trigger/tmp/
+.trigger/dev.lock
