@@ -279,9 +279,18 @@ export async function runListPhase(input: ListPhaseInput): Promise<ListPhaseResu
                 browserPoolOptions: { useFingerprints: true },
                 launchContext: {
                     launchOptions: {
-                        args: ['--disable-blink-features=AutomationControlled'],
+                        args: [
+                            '--disable-blink-features=AutomationControlled',
+                            '--disable-dev-shm-usage',
+                            '--no-sandbox',
+                            '--disable-gpu',
+                            '--disable-extensions',
+                            '--disable-background-networking',
+                            '--no-first-run',
+                        ],
                     },
                 },
+
             },
             crawleeConfig
         );

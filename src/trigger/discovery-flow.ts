@@ -140,33 +140,33 @@ export const roleExtractionBatchTask = task({
 });
 
 // ============================================================
-// Task 3: Role Extraction (single) - kept for ad-hoc use
+// Task 3: Role Extraction (single)
 // ============================================================
-export const roleExtractionTask = task({
-    id: "role-extraction",
-    maxDuration: 300,
-    queue: {
-        name: "extraction-queue",
-        concurrencyLimit: 5,
-    },
-    run: async (payload: DetailPhaseInput) => {
-        logger.info(`Extracting role`, { url: payload.url, action: payload.action });
+// export const roleExtractionTask = task({
+//     id: "role-extraction",
+//     maxDuration: 300,
+//     queue: {
+//         name: "extraction-queue",
+//         concurrencyLimit: 5,
+//     },
+//     run: async (payload: DetailPhaseInput) => {
+//         logger.info(`Extracting role`, { url: payload.url, action: payload.action });
 
-        const result = await runDetailPhase(payload);
+//         const result = await runDetailPhase(payload);
 
-        if (!result.success) {
-            throw new Error(`Detail extraction failed for ${payload.url}: ${result.error}`);
-        }
+//         if (!result.success) {
+//             throw new Error(`Detail extraction failed for ${payload.url}: ${result.error}`);
+//         }
 
-        logger.info(`✅ Role extracted`, {
-            url: payload.url,
-            title: result.title,
-            cost: `$${result.metrics.totalCostUsd.toFixed(4)}`,
-        });
+//         logger.info(`✅ Role extracted`, {
+//             url: payload.url,
+//             title: result.title,
+//             cost: `$${result.metrics.totalCostUsd.toFixed(4)}`,
+//         });
 
-        return result;
-    },
-});
+//         return result;
+//     },
+// });
 
 
 

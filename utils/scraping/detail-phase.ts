@@ -188,15 +188,24 @@ export async function runDetailPhase(input: DetailPhaseInput): Promise<DetailPha
             {
                 requestHandler: router,
                 headless: true,
-                maxConcurrency: 3,
+                maxConcurrency: 1,
                 navigationTimeoutSecs: 60,
                 requestHandlerTimeoutSecs: 120,
                 browserPoolOptions: { useFingerprints: true },
                 launchContext: {
                     launchOptions: {
-                        args: ['--disable-blink-features=AutomationControlled'],
+                        args: [
+                            '--disable-blink-features=AutomationControlled',
+                            '--disable-dev-shm-usage',
+                            '--no-sandbox',
+                            '--disable-gpu',
+                            '--disable-extensions',
+                            '--disable-background-networking',
+                            '--no-first-run',
+                        ],
                     },
                 },
+
             },
             crawleeConfig
         );
@@ -403,13 +412,21 @@ export async function runDetailPhaseBatch(inputs: DetailPhaseInput[]): Promise<D
         {
             requestHandler: router,
             headless: true,
-            maxConcurrency: 3,
+            maxConcurrency: 1,
             navigationTimeoutSecs: 60,
             requestHandlerTimeoutSecs: 120,
             browserPoolOptions: { useFingerprints: true },
             launchContext: {
                 launchOptions: {
-                    args: ['--disable-blink-features=AutomationControlled'],
+                    args: [
+                        '--disable-blink-features=AutomationControlled',
+                        '--disable-dev-shm-usage',
+                        '--no-sandbox',
+                        '--disable-gpu',
+                        '--disable-extensions',
+                        '--disable-background-networking',
+                        '--no-first-run',
+                    ],
                 },
             },
         },
