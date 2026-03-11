@@ -1,7 +1,7 @@
 import { task, logger } from "@trigger.dev/sdk/v3";
 import { createClient } from "@supabase/supabase-js";
 import { runListPhase } from "../../utils/scraping/list-phase";
-import { runDetailPhase, DetailPhaseInput } from "../../utils/scraping/detail-phase";
+import { runDetailPhase, runDetailPhaseBatch, DetailPhaseInput } from "../../utils/scraping/detail-phase";
 import { updateScrapeUrlMetrics } from "../../utils/scraping/save-discoveries";
 
 // ============================================================
@@ -69,22 +69,30 @@ export const discoveryFlowTask = task({
             return { firmName: firm.name, rolesFound: 0 };
         }
 
-        // Phase 2: Fan out detail tasks
-        const batch = await roleExtractionTask.batchTrigger(
-            listResult.collectedLinks.map(link => ({
+        // Phase 2: Chunk URLs into batches and fan out — one Chromium per chunk
+        const CHUNK_SIZE = 10;
+        const chunks: (typeof listResult.collectedLinks)[] = [];
+        for (let i = 0; i < listResult.collectedLinks.length; i += CHUNK_SIZE) {
+            chunks.push(listResult.collectedLinks.slice(i, i + CHUNK_SIZE));
+        }
+
+        const batch = await roleExtractionBatchTask.batchTrigger(
+            chunks.map(chunk => ({
                 payload: {
-                    url: link.url,
-                    title: link.title,
-                    action: link.action,
-                    existingRoleId: link.existingRoleId,
-                    firmId: scrapeUrl.firm_id,
-                    firmName: firm.name,
-                    firmSlug: firm.slug,
-                    scrapeUrlId: scrapeUrl.id,
-                    expectedProgrammes: scrapeUrl.expected_programmes || [],
-                    existingProgrammes: existingProgrammes || [],
-                    allRolesInScan: listResult.allRolesInScan,
-                    scraperConfig: scrapeUrl.scraper_config || {},
+                    roles: chunk.map(link => ({
+                        url: link.url,
+                        title: link.title,
+                        action: link.action,
+                        existingRoleId: link.existingRoleId,
+                        firmId: scrapeUrl.firm_id,
+                        firmName: firm.name,
+                        firmSlug: firm.slug,
+                        scrapeUrlId: scrapeUrl.id,
+                        expectedProgrammes: scrapeUrl.expected_programmes || [],
+                        existingProgrammes: existingProgrammes || [],
+                        allRolesInScan: listResult.allRolesInScan,
+                        scraperConfig: scrapeUrl.scraper_config || {},
+                    })),
                 },
             }))
         );
@@ -92,20 +100,54 @@ export const discoveryFlowTask = task({
         return {
             firmName: firm.name,
             rolesFound: listResult.collectedLinks.length,
+            chunks: chunks.length,
             batchId: batch.batchId,
         };
     },
 });
 
 // ============================================================
-// Task 2: Role Extraction - processes a single detail page
+// Task 2: Role Extraction Batch - processes a chunk of detail pages
+//         through a single PlaywrightCrawler (one Chromium, N tabs)
+// ============================================================
+export const roleExtractionBatchTask = task({
+    id: "role-extraction-batch",
+    maxDuration: 600,
+    queue: {
+        name: "extraction-queue",
+        concurrencyLimit: 3, // 3 batch tasks × 3 tabs each = 9 concurrent pages max
+    },
+    run: async (payload: { roles: DetailPhaseInput[] }) => {
+        logger.info(`Extracting batch of ${payload.roles.length} roles`);
+
+        const results = await runDetailPhaseBatch(payload.roles);
+
+        const failed = results.filter(r => !r.success);
+        if (failed.length > 0) {
+            logger.warn(`${failed.length}/${results.length} roles failed in batch`, {
+                failed: failed.map(r => ({ url: r.url, error: r.error })),
+            });
+        }
+
+        logger.info(`✅ Batch complete`, {
+            total: results.length,
+            succeeded: results.filter(r => r.success).length,
+            failed: failed.length,
+        });
+
+        return results;
+    },
+});
+
+// ============================================================
+// Task 3: Role Extraction (single) - kept for ad-hoc use
 // ============================================================
 export const roleExtractionTask = task({
     id: "role-extraction",
     maxDuration: 300,
     queue: {
         name: "extraction-queue",
-        concurrencyLimit: 5, // 5 detail pages processed in parallel
+        concurrencyLimit: 5,
     },
     run: async (payload: DetailPhaseInput) => {
         logger.info(`Extracting role`, { url: payload.url, action: payload.action });

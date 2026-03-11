@@ -188,7 +188,7 @@ export async function runDetailPhase(input: DetailPhaseInput): Promise<DetailPha
             {
                 requestHandler: router,
                 headless: true,
-                maxConcurrency: 1,
+                maxConcurrency: 3,
                 navigationTimeoutSecs: 60,
                 requestHandlerTimeoutSecs: 120,
                 browserPoolOptions: { useFingerprints: true },
@@ -239,6 +239,186 @@ export async function runDetailPhase(input: DetailPhaseInput): Promise<DetailPha
             logs,
         };
     }
+}
+
+/**
+ * Run the DETAIL phase for a batch of role URLs through a single PlaywrightCrawler.
+ * One Chromium process, N tabs — avoids per-URL browser startup overhead.
+ */
+export async function runDetailPhaseBatch(inputs: DetailPhaseInput[]): Promise<DetailPhaseResult[]> {
+    // Pre-populate with default failure so every URL has an entry even if the crawler skips it
+    const results = new Map<string, DetailPhaseResult>(
+        inputs.map(input => [input.url, {
+            success: false,
+            url: input.url,
+            metrics: { totalTokensUsed: 0, totalCostUsd: 0, durationSeconds: 0 },
+            error: 'Not processed',
+            logs: [],
+        }])
+    );
+
+    const crawleeConfig = new Configuration({ persistStorage: false });
+    const router = createPlaywrightRouter();
+
+    router.addDefaultHandler(async ({ page, request }) => {
+        const input = request.userData as DetailPhaseInput;
+        const urlStartTime = Date.now();
+        const logs: string[] = [];
+
+        const log = (msg: string) => {
+            const timestamp = new Date().toISOString();
+            console.log(`[${timestamp}] ${msg}`);
+            logs.push(`[${timestamp}] ${msg}`);
+        };
+
+        const extractionModel = input.scraperConfig?.extractionModel ?? 'gpt-4o-mini';
+        const extractionTracker = new UsageTracker();
+        const suggestionTracker = new UsageTracker();
+
+        try {
+            log(`[DETAIL] Processing: ${input.url}`);
+            log(`[DETAIL] Title: "${input.title}"`);
+            log(`[DETAIL] Action: ${input.action}${input.existingRoleId ? ` (updating ${input.existingRoleId})` : ''}`);
+
+            try {
+                await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+                await page.waitForLoadState('networkidle', { timeout: 10000 });
+            } catch {
+                log('[DETAIL] Page load timeout - continuing with available content');
+            }
+
+            await page.waitForTimeout(2000);
+            const html = await page.content();
+            log(`[DETAIL] Page loaded (${html.length} chars)`);
+
+            log(`[DETAIL] 🤖 Extracting role data (model: ${extractionModel})...`);
+            const extraction = await extractRoleFromHtml(html, input.url, extractionModel);
+            extractionTracker.add(extraction.usage);
+
+            log(`[DETAIL] ✓ Extracted: "${extraction.role.title}"`);
+            log(`[DETAIL]   Location: ${extraction.role.location || 'N/A'}`);
+            log(`[DETAIL]   Program type: ${extraction.role.program_type || 'N/A'}`);
+            log(`[DETAIL]   Deadline: ${extraction.role.deadline || 'N/A'}`);
+
+            log('[DETAIL] 🎯 Suggesting programme...');
+            const suggestion = await suggestProgramme({
+                scrapedRole: extraction.role,
+                allRolesInScan: input.allRolesInScan,
+                expectedProgrammes: input.expectedProgrammes,
+                existingProgrammes: input.existingProgrammes,
+                firmName: input.firmName,
+            });
+            suggestionTracker.add(suggestion.usage);
+
+            if (suggestion.is_new) {
+                log(`[DETAIL] ✨ New programme: "${suggestion.suggested_name}"`);
+            } else {
+                log(`[DETAIL] ✓ Matched: "${suggestion.matched_program_name}" (${suggestion.matched_program_id})`);
+            }
+
+            if (suggestion.is_new && suggestion.suggested_name) {
+                try {
+                    const supabase = createClient(
+                        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                        process.env.SUPABASE_SERVICE_ROLE_KEY!
+                    );
+
+                    const { data: existingDrafts } = await supabase
+                        .from('programme_discovery_drafts')
+                        .select('suggested_name, normalized_name, program_type')
+                        .eq('scrape_url_id', input.scrapeUrlId)
+                        .eq('status', 'pending');
+
+                    if (existingDrafts && existingDrafts.length > 0) {
+                        const normalizedSuggestion = normalizeProgrammeName(suggestion.suggested_name);
+                        const match = existingDrafts.find((draft: any) => {
+                            return normalizeProgrammeName(draft.suggested_name) === normalizedSuggestion
+                                && draft.program_type === suggestion.program_type;
+                        });
+
+                        if (match) {
+                            log(`[DETAIL] 🔄 Dedup: reusing "${match.suggested_name}"`);
+                            suggestion.suggested_name = match.suggested_name;
+                            suggestion.normalized_name = match.normalized_name;
+                        }
+                    }
+                } catch (error) {
+                    log(`[DETAIL] ⚠️ Dedup check failed: ${error instanceof Error ? error.message : String(error)}`);
+                }
+            }
+
+            log('[DETAIL] 💾 Saving to database...');
+            const saved = await saveDiscovery({
+                firmId: input.firmId,
+                sourceUrlId: input.scrapeUrlId,
+                scrapedRole: extraction.role,
+                programmeSuggestion: suggestion,
+                url: input.url,
+                updateType: input.action,
+                existingRoleId: input.existingRoleId,
+            });
+
+            const extractionCost = extractionTracker.getCost('gpt-4o-mini');
+            const suggestionCost = suggestionTracker.getCost('gpt-4o-mini');
+            const totalCost = extractionCost.totalCost + suggestionCost.totalCost;
+            const totalTokens = extractionCost.totalTokens + suggestionCost.totalTokens;
+            const durationSeconds = (Date.now() - urlStartTime) / 1000;
+
+            if (saved) {
+                log(`[DETAIL] ✓ Saved! Programme draft: ${saved.programmeDraftId || 'matched existing'}, Role draft: ${saved.roleDraftId}`);
+                log(`✅ DETAIL complete in ${durationSeconds.toFixed(2)}s | Cost: $${totalCost.toFixed(4)}`);
+                results.set(input.url, {
+                    success: true,
+                    url: input.url,
+                    title: extraction.role.title,
+                    programmeDraftId: saved.programmeDraftId,
+                    roleDraftId: saved.roleDraftId,
+                    metrics: { totalTokensUsed: totalTokens, totalCostUsd: totalCost, durationSeconds },
+                    logs,
+                });
+            } else {
+                log('[DETAIL] ⚠️ Failed to save to DB');
+                results.set(input.url, {
+                    success: false,
+                    url: input.url,
+                    metrics: { totalTokensUsed: totalTokens, totalCostUsd: totalCost, durationSeconds },
+                    error: 'Extraction completed but save failed',
+                    logs,
+                });
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            log(`✗ DETAIL failed: ${errorMessage}`);
+            results.set(input.url, {
+                success: false,
+                url: input.url,
+                metrics: { totalTokensUsed: 0, totalCostUsd: 0, durationSeconds: (Date.now() - urlStartTime) / 1000 },
+                error: errorMessage,
+                logs,
+            });
+        }
+    });
+
+    const crawler = new PlaywrightCrawler(
+        {
+            requestHandler: router,
+            headless: true,
+            maxConcurrency: 3,
+            navigationTimeoutSecs: 60,
+            requestHandlerTimeoutSecs: 120,
+            browserPoolOptions: { useFingerprints: true },
+            launchContext: {
+                launchOptions: {
+                    args: ['--disable-blink-features=AutomationControlled'],
+                },
+            },
+        },
+        crawleeConfig
+    );
+
+    await crawler.run(inputs.map(input => ({ url: input.url, userData: input })));
+
+    return Array.from(results.values());
 }
 
 
