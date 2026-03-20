@@ -115,7 +115,7 @@ export const roleExtractionBatchTask = task({
     maxDuration: 600,
     queue: {
         name: "extraction-queue",
-        concurrencyLimit: 3, // 3 batch tasks × 3 tabs each = 9 concurrent pages max
+        concurrencyLimit: 2, // 3 batch tasks × 3 tabs each = 9 concurrent pages max
     },
     run: async (payload: { roles: DetailPhaseInput[] }) => {
         logger.info(`Extracting batch of ${payload.roles.length} roles`);
