@@ -188,7 +188,7 @@ export async function runDetailPhase(input: DetailPhaseInput): Promise<DetailPha
             {
                 requestHandler: router,
                 headless: true,
-                maxConcurrency: 1,
+                maxConcurrency: 2,
                 navigationTimeoutSecs: 60,
                 requestHandlerTimeoutSecs: 120,
                 browserPoolOptions: { useFingerprints: true },
@@ -412,7 +412,7 @@ export async function runDetailPhaseBatch(inputs: DetailPhaseInput[]): Promise<D
         {
             requestHandler: router,
             headless: true,
-            maxConcurrency: 1,
+            maxConcurrency: 2,
             navigationTimeoutSecs: 60,
             requestHandlerTimeoutSecs: 120,
             browserPoolOptions: { useFingerprints: true },
